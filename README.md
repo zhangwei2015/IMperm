@@ -2,7 +2,7 @@
 Program:        IMpair: Merging Paired-end Reads of Immune Repertoire Data
 Version         V1.0.0
 
-Usage:   IMpair -a -b -o -d -e [options]
+Usage:   IMpair -a -b -o -2 -3 [options]
 
         Compulsory Parametors for Input/Output:
         -a      <str>    Query read1 file with FASTQ format(*.fq or *.fq.gz)
@@ -40,7 +40,10 @@ Usage:   IMpair -a -b -o -d -e [options]
 
         -h       For help
 
+
 --------------------- Note ---------------------
+
+
 Step I: mgering paired reads by its overlapped region
 Step II: for the reads failed to merge in step I, we use the successful merged sequences(step I) to aid for connection
 Step III: for the reads failed to merged in step I or II, we use Germline sequences of V genes to aid for connection
