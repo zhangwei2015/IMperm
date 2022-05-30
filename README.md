@@ -59,5 +59,7 @@ Step III: for the reads failed to merged in step I or II, we use Germline sequen
 if we use Step III to merge PE reads and -W=0, the paired reads maybe no overlap, then:
         -D -w=0 -N(optional): to output merged sequence, the gap(between the paired reads) will be filled with 'n'
         -D -w=0 -R: to output merged sequences,the gap(between the paired reads) will be filled with matched Germline V sequences
+        
+There is an test data(Test/\*.fq.gz) and example for running(Test/test.sh)
 
 Contact:        Wei Zhang: wzhang287-c@my.cityu.edu.hk
