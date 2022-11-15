@@ -3,14 +3,14 @@ Program:        IMpair: Merging Paired-end Reads of Immune Repertoire Data
 
 Version         V1.0.0
 
-Usage:   IMpair -a -b -o -2 -3 [options]
+Usage:   IMpair -a -b -o -1 -2 [options]
 
         Compulsory Parametors for Input/Output:
         -a      <str>    Query read1 file with FASTQ format(*.fq or *.fq.gz)
         -b      <str>    Query read2 file with FASTQ format(*.fq or *.fq.gz)
         -o      <str>    Output the merged file (*.fq.gz)
-        -2      <str>    Output the failed read1 (*.fq.gz)
-        -3      <str>    Output the failed read2 (*.fq.gz)
+        -1      <str>    Output the failed read1 (*.fq.gz)
+        -2      <str>    Output the failed read2 (*.fq.gz)
 
         General Optional Parameters:
         -Q      <int>    The value is used to decode the sequencing quality score for each nucleotide. Generally, 33 and 64 are common used values [64]
@@ -50,13 +50,13 @@ Step II: for the reads failed to merge in step I, we use the successful merged s
 Step III: for the reads failed to merged in step I or II, we use Germline sequences of V genes to aid for connection
 
 1. only use the Step I ot merge PE reads
-        IMpair -a -b -o -2 -3 [options]
+        IMpair -a -b -o -1 -2 [options]
 2. use Step I and  Step II to merge PE reads
-        IMpair -a -b -o -2 -3 -C [options]; here -C is compulsory
+        IMpair -a -b -o -1 -2 -C [options]; here -C is compulsory
 3. use Step I and Step III to merge PE reads
-        IMpair -a -b -o -2 -3 -D [options]; here -D is compulsory
+        IMpair -a -b -o -1 -2 -D [options]; here -D is compulsory
 4. use Step I, Step II and Step III to merge PE reads
-        IMpair -a -b -o -2 -3 -C -D [options]; here -C and -D are compulsory
+        IMpair -a -b -o -1 -2 -C -D [options]; here -C and -D are compulsory
 if we use Step III to merge PE reads and -W=0, the paired reads maybe no overlap, then:
         -D -w=0 -N(optional): to output merged sequence, the gap(between the paired reads) will be filled with 'n'
         -D -w=0 -R: to output merged sequences,the gap(between the paired reads) will be filled with matched Germline V sequences
