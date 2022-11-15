@@ -61,18 +61,18 @@ void Usage(void)
 {
 	fprintf(stdout,"\nProgram:        IMperm: Paired-end reads merger for immune repertoire data\n");
 	fprintf(stdout,"Version		V1.0.0\n\n");
-	fprintf(stdout, "Usage:\t IMpair -a -b -o -d -e [options]\n\n");
+	fprintf(stdout, "Usage:\t IMpair -a -b -o -1 -2 [options]\n\n");
 	fprintf(stdout, "\tCompulsory Parametors for Input/Output:\n");
 	fprintf(stdout,"\t-a\t<str>\t Query read1 file with FASTQ format(*.fq or *.fq.gz)\n");
 	fprintf(stdout,"\t-b\t<str>\t Query read2 file with FASTQ format(*.fq or *.fq.gz)\n");
 	fprintf(stdout,"\t-o\t<str>\t Output the merged file (*.fq.gz)\n");
-	fprintf(stdout,"\t-2\t<str>\t Output the failed read1 (*.fq.gz)\n");
-	fprintf(stdout,"\t-3\t<str>\t Output the failed read2 (*.fq.gz)\n\n");
+	fprintf(stdout,"\t-1\t<str>\t Output the failed read1 (*.fq.gz)\n");
+	fprintf(stdout,"\t-2\t<str>\t Output the failed read2 (*.fq.gz)\n\n");
 
 	fprintf(stdout, "\tGeneral Optional Parameters:\n");
 	fprintf(stdout,"\t-Q\t<int>\t The value is used to decode the sequencing quality score for each nucleotide. Generally, 33 and 64 are common used values [64]\n");
 	fprintf(stdout,"\t-L\t<int>\t The mimimum length of merged sequence [50]\n");//
-	fprintf(stdout,"\t-T\t<int>\t cutff of base quality: The bases at the end of read will be trimmed if the base quality is less than -T [0]\n\n");
+	fprintf(stdout,"\t-T\t<int>\t cutff of base quality: The bases at the end of read will be trimmed if the base quality is less than -T [2]\n\n");
 	
 	fprintf(stdout, "\tStep I Optional Parameters:\n");
 	fprintf(stdout,"\t-k\t<int>\t The length of seed(k-mer). One read is splitted into many k-mers that are used to identify the overlapped positions of paired reads [3]\n");
@@ -102,13 +102,13 @@ void Usage(void)
 	fprintf(stdout,"Step II: for the reads failed to merge in step I, we use the successful merged sequences(step I) to aid for connection\n");
 	fprintf(stdout,"Step III: for the reads failed to merged in step I or II, we use Germline sequences of V genes to aid for connection\n\n");
 	fprintf(stdout,"1. only use the Step I ot merge PE reads\n");
-	fprintf(stdout,"\tIMpair -a -b -o -2 -3 [options]\n");
+	fprintf(stdout,"\tIMpair -a -b -o -1 -2 [options]\n");
 	fprintf(stdout,"2. use Step I and  Step II to merge PE reads\n");
-	fprintf(stdout,"\tIMpair -a -b -o -2 -3 -C [options]; here -C is compulsory\n");
+	fprintf(stdout,"\tIMpair -a -b -o -1 -2 -C [options]; here -C is compulsory\n");
 	fprintf(stdout,"3. use Step I and Step III to merge PE reads\n");
-	fprintf(stdout,"\tIMpair -a -b -o -2 -3 -D [options]; here -D is compulsory\n");
+	fprintf(stdout,"\tIMpair -a -b -o -1 -2 -D [options]; here -D is compulsory\n");
 	fprintf(stdout,"4. use Step I, Step II and Step III to merge PE reads\n");
-	fprintf(stdout,"\tIMpair -a -b -o -2 -3 -C -D [options]; here -C and -D are compulsory\n");
+	fprintf(stdout,"\tIMpair -a -b -o -1 -2 -C -D [options]; here -C and -D are compulsory\n");
 	fprintf(stdout,"if we use Step III to merge PE reads and -W=0, the paired reads maybe no overlap, then:\n");
 	fprintf(stdout,"\t-D -w=0 -N(optional): to output merged sequence, the gap(between the paired reads) will be filled with 'n'\n"); 
 	fprintf(stdout,"\t-D -w=0 -R: to output merged sequences,the gap(between the paired reads) will be filled with matched Germline V sequences\n\n");
@@ -154,7 +154,7 @@ void optInit(int argc,char **argv)
 	char  *oFile, *FileName, *dFile, *eFile, *file_flag;
 	file_flag=(char*)calloc(4,sizeof(char));
 
-	while((result=getopt(argc,argv,"a:b:o:2:3:Q:L:k:n:T:f:m:l:c:S:M:F:X:G:W:Y:NCDR"))!=-1)
+	while((result=getopt(argc,argv,"a:b:o:1:2:Q:L:k:n:T:f:m:l:c:S:M:F:X:G:W:Y:NCDR"))!=-1)
 	{
 		switch(result)
 		{
@@ -202,7 +202,7 @@ void optInit(int argc,char **argv)
 							exit(1);
 						}
 						break;
-			case '2':	if((dFile = (char *)malloc(sizeof(char)*(strlen(optarg)+1))) != NULL)
+			case '1':	if((dFile = (char *)malloc(sizeof(char)*(strlen(optarg)+1))) != NULL)
 						{
 							memset(dFile,'\0',strlen(optarg)+1);
 							strcat(dFile,optarg);
@@ -214,7 +214,7 @@ void optInit(int argc,char **argv)
 							exit(1);
 						}
 						break;
-			case '3':	e_signal = 1;
+			case '2':	e_signal = 1;
 						if((eFile = (char *)malloc(sizeof(char)*(strlen(optarg)+1))) != NULL)
 						{
 							memset(eFile,'\0',strlen(optarg)+1);

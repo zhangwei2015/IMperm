@@ -71,7 +71,6 @@ extern int optopt;
 int if_gz_file;
 
 // the below subfunctions are followed in file InitialVal.c
-//void FileStaticATGC(const char *File1, const char *File2);
 void ComputBasicVal(void);
 void Usage(void);
 void optInit(int argc, char **argv);
@@ -82,22 +81,22 @@ void PRODUCE_HASH(FILE *file);
 void getGermlineRead(void);
 int Judge_Connect(char *Name, char *read1,char *quanl1,char *Symbol, char *read2, char *quanl2);
 
-// the below subfunctions are followed in file IOverlap.c
+// the below subfunctions are followed in file StepII.c
 int Condition_Set(char *read1,char *quanl1,char *read2,char *quanl2,FILE *file,char *Name,char *Symbol);
 // the below subfunctions are followed in file IAuxiAss.c
 void AuxiAss(char *Read1, char *Read2, char *Quanl1, char *Quanl2,int R1Len, int R2Len, int Len, char *Read, char *QuanL);
 float SimilariTy(int _Start, const char *MdRead, const char *Target, int Len);
 
-// the below subfunctions are followed in file Iread.c
+// the below subfunctions are followed in file StepI.c
 void separator(char string[],int Lolen);
 void ReadQualityAdjust(char *read, char *quanl);
 void SeedSelect(void);
-void BlockRead(FILE *File1, FILE *File2);
-void BlockRead_gz(gzFile gzfp1, gzFile gzfp2);
-void BlockRead_step2(FILE *File1, FILE *File2);
+void BlockRead(FILE *File1, FILE *File2); // input the PE reads from uncompressed files
+void BlockRead_gz(gzFile gzfp1, gzFile gzfp2); //input the PE reads from compressed(*.gz) files
+void BlockRead_step2(FILE *File1, FILE *File2); //read one pair of unmerged reads in the Step II
 float Phred(char QuANL);
-double MatchedScore(char Read,const char QuANL1, char QuANL2);
-double uMatchedScore(const char Read1, const char Read2, const char QuANL1, const char QuANL2);
+double MatchedScore(char Read,const char QuANL1, char QuANL2); // calculate the match score for match base pairs
+double uMatchedScore(const char Read1, const char Read2, const char QuANL1, const char QuANL2); // calculate the match score for unmatch base pairs
 void BestOverlap(struct DeterPara *para);
 int  Assemble(struct DeterPara BeOvlap, FILE *tmpMergeFile);
 void ReadQuanlityAdjust(char *read, char *quanl);
@@ -127,9 +126,9 @@ int main(int argc, char **argv)
 	GERMLINE_MATCH_RATE = 0.85;	GERMLINE_MAT_RATE_2 = 0.5;	GERMLINE_OVERLAP_LEN = 0;
 	LK.prA = 0.25,		LK.prC = 0.25,		 LK.prT = 0.25,		LK.prG = 0.25;
 	TWO_LENGTH_ = 10;	Out_gap_N_flag = 1;	Out_gap_R_flag = 0;	Step2_flag = 0;		Step3_flag = 0;
-	R_end_Q_f = 0;
+	R_end_Q_f = 2;
 	
-	optInit(argc,argv);
+	optInit(argc,argv); // get the parameters from the command line
 	
 	Maximal_quality_c = Maximal_quality+QuanlityUsed;// get the quality character
 	
@@ -156,7 +155,7 @@ int main(int argc, char **argv)
 	}
 
 	start = time(NULL);
-	printf("Step I: Processing and connecting paired reads\n");
+	printf("Step I start: Processing and connecting paired reads\n");
 	int flag = 0;	
 	while(1)
 	{
@@ -178,7 +177,7 @@ int main(int argc, char **argv)
 			if(feof(File1) != 0 || feof(File2) != 0)
 				break;
 		}
-		else if(if_gz_file == 1)// *.gz file
+		else if(if_gz_file == 1)//input file:  compressed *.gz files
 		{
 			BlockRead_gz(gzfp1,gzfp2);
 			if(gzeof(gzfp1) != 0 || gzeof(gzfp2) != 0)
@@ -187,7 +186,7 @@ int main(int argc, char **argv)
 		TotalNum++;
 		flag++;
 			
-//	Step I:  merge paired reads		
+		//	Step I:  merge paired reads		
 		BestOverlap(para);// 1. identify the position of reads by the kmers; 2. get the overlapped region and merged sequences;
 		MaxOverlap = para[0];
 		for(i=0; i<BestNumber; i++){
@@ -198,7 +197,8 @@ int main(int argc, char **argv)
 		if(MaxOverlap.AS >= AS_threshold && strlen(MaxOverlap.MergedRead)>= MinResidualLen) // 1. final merged sequences for Step I
 		{
 			char *out_name,out_name2[MAX_READ_LENGTH];
-		        if((out_name = strstr(IdName1,"/1")) != NULL){
+		        if((out_name = strstr(IdName1,"/1")) != NULL)//modified the output name
+			{
 				strncpy(out_name2,IdName1,strlen(IdName1)-strlen(out_name));
 				out_name2[strlen(IdName1)-strlen(out_name)] = '\0';
 				gzputs(OutFile,out_name2);gzputs(OutFile,"\n");gzputs(OutFile,MaxOverlap.MergedRead);gzputs(OutFile,"\n");gzputs(OutFile,Symbol1);gzputs(OutFile,MaxOverlap.MergedQual);gzputs(OutFile,"\n");
@@ -206,7 +206,8 @@ int main(int argc, char **argv)
 				gzputs(OutFile,IdName1);gzputs(OutFile,MaxOverlap.MergedRead);gzputs(OutFile,"\n");gzputs(OutFile,Symbol1);gzputs(OutFile,MaxOverlap.MergedQual);gzputs(OutFile,"\n");
 			}
 			ConnectedNum++; 
-			if(Step2_flag == 1){
+			if(Step2_flag == 1)// the merged sequences stored as set S, and the set S could be used in the Step II
+			{
 				fputs(IdName1,tmpMergeFile);
 				fputs(MaxOverlap.MergedRead,tmpMergeFile);fputs("\n",tmpMergeFile);
 				fputs(Symbol1,tmpMergeFile);
@@ -231,18 +232,19 @@ int main(int argc, char **argv)
 			}
 		}
 	}
+	printf("Setp I end!\n");
 	middle = time(NULL);		printf("Running time I(s):\t%lf\n",difftime(middle,start));
 	fseek(tmpMergeFile,0,0);	fseek(tmFile1,0,0);	fseek(tmFile2,0,0);
 	
 	
-	printf("StepII and StepIII: Doing the auxilary connection by successed merged sequences and Germline V sequences\n");
+	printf("Step II and III start: Doing the auxilary connection by successed merged sequences and Germline V sequences\n");
 	if(Step2_flag == 1)
 		PRODUCE_HASH(tmpMergeFile);// store the merged sequences in hash
 	
 	//conne *result;
 	//result = (conne *)malloc(sizeof(conne));
 	if(Step3_flag == 1)
-		getGermlineRead();
+		getGermlineRead();// read the germline V gene reference
 	
 	while(1)
 	{
@@ -254,13 +256,13 @@ int main(int argc, char **argv)
 		strcpy(Read2_inver,Read2);
 		strcpy(QuanlVal2_inver,QuanlVal2);
 		ReadQuanlityAdjust(Read2_inver,QuanlVal2_inver); // inverse the read2 information, including read and quanlity
-// Step II: assist unmberged reads by above merged sequences
+		// Step II: assist unmberged reads by above merged sequences
 		if(Step2_flag == 1)
 		{
 			int con_flag = 0;
 			con_flag = Condition_Set(Read1,QuanlVal1,Read2_inver,QuanlVal2_inver,tmpMergeFile,IdName1,Symbol1);
 			
-			if(con_flag == 1)
+			if(con_flag == 1)// merged successf
 			{
 				flag_2 = 1;
 				AuxiMergedNum++;
@@ -272,10 +274,10 @@ int main(int argc, char **argv)
 				gzputs(DisFile2,IdName2);gzputs(DisFile2,Read2);gzputs(DisFile2,"\n");gzputs(DisFile2,Symbol2);gzputs(DisFile2,QuanlVal2);gzputs(DisFile2,"\n");
 			}
 		}
-// Setp III: assist unmberged reads by germline sequences
+		// Setp III: assist unmberged reads by germline sequences
 		if(Step3_flag == 1 && flag_2 ==0)
 		{
-			if(Judge_Connect(IdName1,Read1,QuanlVal1,Symbol1, Read2_inver, QuanlVal2_inver) < 0)
+			if(Judge_Connect(IdName1,Read1,QuanlVal1,Symbol1, Read2_inver, QuanlVal2_inver) < 0)// merged successf
 			{
 				gzputs(DisFile1,IdName1);gzputs(DisFile1,Read1);gzputs(DisFile1,"\n");gzputs(DisFile1,Symbol1);gzputs(DisFile1,QuanlVal1);gzputs(DisFile1,"\n");
 				gzputs(DisFile2,IdName2);gzputs(DisFile2,Read2);gzputs(DisFile2,"\n");gzputs(DisFile2,Symbol2);gzputs(DisFile2,QuanlVal2);gzputs(DisFile2,"\n");
@@ -290,6 +292,7 @@ int main(int argc, char **argv)
 	fclose(tmFile1);	fclose(tmFile2);	fclose(tmpMergeFile);
 
 	final = time(NULL);
+	printf("Step II and III end!\n");
 	printf("Running time II and III(s):\t%lf\n",difftime(final,middle));
 	
 	printf("Running Total Time(s): %lf\n",difftime(final,start));

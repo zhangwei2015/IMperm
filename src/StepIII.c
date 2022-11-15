@@ -162,6 +162,8 @@ int Connect(char *Name, char *read1,char *quanl1,char *read2, char *quanl2, char
 //	char *Read,*Quanl;
 //	Read  = (char *)calloc(distanCE+read2_len+1,sizeof(char));
 //	Quanl = (char *)calloc(distanCE+read2_len+1,sizeof(char));
+	if(distanCE+read2_len+1 <= 0)
+		return -1;
 	char Read[distanCE+read2_len+1],Quanl[distanCE+read2_len+1];
 	if(distanCE >= read1_len && GERMLINE_OVERLAP_LEN == 0)// there is a gap between the paired reads because the PCR amplication is too long
 	{

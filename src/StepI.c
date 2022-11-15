@@ -277,17 +277,34 @@ void BlockRead(FILE *File1, FILE *File2)
 		int L_raw = strlen(Read1);
                 int R_raw = strlen(Read2);
 		for(int i=L_raw-1; i>=L_raw/2 ; i--){
-			if(QuanlVal1[i] - QuanlityUsed < R_end_Q_f){
+			if(QuanlVal1[i] - QuanlityUsed <= R_end_Q_f){
 				Read1[i] = '\0';
 				QuanlVal1[i] = '\0';
+			}else if(i==L_raw-1){
+				int L_tmp_1 = (QuanlVal1[i-1]+QuanlVal1[i-2]+QuanlVal1[i-3]+QuanlVal1[i-4]+QuanlVal1[i-5] - 5*QuanlityUsed);
+				if(L_tmp_1 <= 5*R_end_Q_f){
+					Read1[i] = '\0';
+					QuanlVal1[i] = '\0';
+				}else{
+					break;
+				}
 			}else
 				break;
 		}
                 for(int i=R_raw-1; i>=R_raw/2 ; i--){
-                        if(QuanlVal2[i] - QuanlityUsed < R_end_Q_f){
+                        if(QuanlVal2[i] - QuanlityUsed <= R_end_Q_f){
                                 Read2[i] = '\0';
                                 QuanlVal2[i] = '\0';
-                        }else
+                        }else if(i==R_raw-1){
+				int R_tmp_1 = (QuanlVal2[i-1]+QuanlVal2[i-2]+QuanlVal2[i-3]+QuanlVal2[i-4]+QuanlVal2[i-5] - 5*QuanlityUsed);
+                                if(R_tmp_1 <= 5*R_end_Q_f){
+                                        Read2[i] = '\0';
+                                        QuanlVal2[i] = '\0';
+                                }else{
+                                        break;
+                                }
+
+			}else
                                 break;
                 }
 	}
@@ -328,22 +345,39 @@ void BlockRead_gz(gzFile gzfp1, gzFile gzfp2)
 		int L_raw = strlen(Read1);
 		int R_raw = strlen(Read2);
                 for(int i=L_raw-1; i>=L_raw/2 ; i--){
-                        if(QuanlVal1[i] - QuanlityUsed < R_end_Q_f){
+                        if(QuanlVal1[i] - QuanlityUsed <= R_end_Q_f){
                                 Read1[i] = '\0';
                                 QuanlVal1[i] = '\0';
+                        }else if(i==L_raw-1){
+                                int L_tmp_1 = (QuanlVal1[i-1]+QuanlVal1[i-2]+QuanlVal1[i-3]+QuanlVal1[i-4]+QuanlVal1[i-5] - 5*QuanlityUsed);
+                                if(L_tmp_1 <= 5*R_end_Q_f){
+                                        Read1[i] = '\0';
+                                        QuanlVal1[i] = '\0';
+                                }else{
+                                        break;
+                                }
                         }else
                                 break;
                 }
                 for(int i=R_raw-1; i>=R_raw/2 ; i--){
-                        if(QuanlVal2[i] - QuanlityUsed < R_end_Q_f){
+                        if(QuanlVal2[i] - QuanlityUsed <= R_end_Q_f){
                                 Read2[i] = '\0';
                                 QuanlVal2[i] = '\0';
+                        }else if(i==R_raw-1){
+                                int R_tmp_1 = (QuanlVal2[i-1]+QuanlVal2[i-2]+QuanlVal2[i-3]+QuanlVal2[i-4]+QuanlVal2[i-5] - 5*QuanlityUsed);
+                                if(R_tmp_1 <= 5*R_end_Q_f){
+                                        Read2[i] = '\0';
+                                        QuanlVal2[i] = '\0';
+                                }else{
+                                        break;
+                                }
+
                         }else
                                 break;
                 }
         }
 }
-
+// read one pair of unmerged reads in the Step II
 void BlockRead_step2(FILE *File1, FILE *File2)
 {
         int i;
