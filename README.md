@@ -64,3 +64,6 @@ if we use Step III to merge PE reads and -W=0, the paired reads maybe no overlap
 There are test data(Test/\*.fq.gz) and example for running(Test/test.sh)
 
 Contact:        Wei Zhang: wzhang287-c@my.cityu.edu.hk
+
+
+Note: the directory "Simulated_data" is not associated with IMperm itself, and so this directory is not neccessary to download if you want to use IMperm. However, the data in this directory could be used to test IMperm.
