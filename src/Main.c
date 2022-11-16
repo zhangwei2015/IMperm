@@ -232,12 +232,12 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-	printf("Setp I end!\n");
+	printf("Step I end!\n");
 	middle = time(NULL);		printf("Running time I(s):\t%lf\n",difftime(middle,start));
 	fseek(tmpMergeFile,0,0);	fseek(tmFile1,0,0);	fseek(tmFile2,0,0);
 	
 	
-	printf("Step II and III start: Doing the auxilary connection by successed merged sequences and Germline V sequences\n");
+	printf("Step II and III start: Doing the auxiliary connection by successful merged sequences and Germline V sequences\n");
 	if(Step2_flag == 1)
 		PRODUCE_HASH(tmpMergeFile);// store the merged sequences in hash
 	
